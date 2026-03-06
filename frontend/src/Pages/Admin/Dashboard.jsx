@@ -3,7 +3,7 @@ import {
     BarChart, Bar, XAxis, Tooltip, PieChart, Pie, Cell, ResponsiveContainer, YAxis, CartesianGrid
 } from "recharts";
 import { CreditCard, Package, ShoppingCart, Users } from "lucide-react";
-import { getStats, getOrders } from "../../api/adminApi";
+import { getUsers, getProducts, getOrders } from "../../api/adminApi";
 import { convertUSDToINR } from "../../utils/currencyFormatter";
 import StatCard from "../../Components/admin/StatCard";
 import DataTable from "../../Components/admin/DataTable";
@@ -20,15 +20,28 @@ export default function Dashboard() {
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
-                const [statsRes, ordersRes] = await Promise.all([getStats(), getOrders()]);
-                const statsData = statsRes?.data?.data || {};
+                // Fetch all data for frontend-driven stats
+                const [usersRes, productsRes, ordersRes] = await Promise.all([
+                    getUsers(),
+                    getProducts(),
+                    getOrders()
+                ]);
+
+                const users = usersRes.data?.data || [];
+                const products = productsRes.data?.data || [];
+                const orders = ordersRes.data?.data || [];
+
+                // Calculate stats locally
+                const totalRevenue = orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+
                 setStats({
-                    totalUsers: statsData.totalUsers || 0,
-                    totalOrders: statsData.totalOrders || 0,
-                    totalProducts: statsData.totalProducts || 0,
-                    totalRevenue: statsData.totalRevenue || 0,
+                    totalUsers: users.length,
+                    totalOrders: orders.length,
+                    totalProducts: products.length,
+                    totalRevenue: totalRevenue
                 });
-                const orders = ordersRes?.data?.data || [];
+
+                // Get recent orders
                 setRecentOrders([...orders].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5));
             } catch (err) {
                 if (err.response?.status === 401) {

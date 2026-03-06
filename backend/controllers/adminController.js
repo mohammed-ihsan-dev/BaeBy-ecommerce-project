@@ -54,7 +54,8 @@ export const adminLogin = asyncHandler(async (req, res) => {
 // @route   GET /api/admin/users
 // @access  Private/Admin
 export const getUsers = asyncHandler(async (req, res) => {
-    const users = await User.find({}).select("-password");
+    const users = await User.find({}).select("-password").sort({ createdAt: -1 });
+
     res.json({
         status: "success",
         message: "Users retrieved successfully",
@@ -136,12 +137,8 @@ export const deleteUser = asyncHandler(async (req, res) => {
 // @route   GET /api/admin/products
 // @access  Private/Admin
 export const getProducts = asyncHandler(async (req, res) => {
-    const query = {};
-    if (req.query.category) {
-        query.category = { $regex: new RegExp(`^${req.query.category}$`, "i") };
-    }
+    const products = await Product.find({}).sort({ createdAt: -1 });
 
-    const products = await Product.find(query);
     res.json({
         status: "success",
         message: "Products retrieved successfully",
@@ -253,6 +250,7 @@ export const getOrders = asyncHandler(async (req, res) => {
     });
 });
 
+
 // @desc    Update order status
 // @route   PATCH /api/admin/orders/:id
 // @access  Private/Admin
@@ -276,36 +274,5 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
         status: "success",
         message: "Order status updated successfully",
         data: updatedOrder
-    });
-});
-
-// @desc    Get dashboard stats
-// @route   GET /api/admin/stats
-// @access  Private/Admin
-export const getStats = asyncHandler(async (req, res) => {
-    const totalUsers = await User.countDocuments({});
-    const totalProducts = await Product.countDocuments({});
-    const totalOrders = await Order.countDocuments({});
-
-    const revenueStats = await Order.aggregate([
-        {
-            $group: {
-                _id: null,
-                totalRevenue: { $sum: "$totalAmount" }
-            }
-        }
-    ]);
-
-    const totalRevenue = revenueStats.length > 0 ? revenueStats[0].totalRevenue : 0;
-
-    res.json({
-        status: "success",
-        message: "Stats retrieved successfully",
-        data: {
-            totalUsers,
-            totalProducts,
-            totalOrders,
-            totalRevenue
-        }
     });
 });

@@ -1,24 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { Plus, Trash2, Loader2, Edit2, Search, Image as ImageIcon } from "lucide-react";
+import { Plus, Trash2, Loader2, Edit2, Search, Image as ImageIcon, ChevronLeft, ChevronRight } from "lucide-react";
 import toast from "react-hot-toast";
-import { useSearchParams } from "react-router-dom";
 import { getProducts, createProduct, updateProduct, deleteProduct } from "../../api/adminApi";
 import { convertUSDToINR } from "../../utils/currencyFormatter";
 import DataTable from "../../Components/admin/DataTable";
 import Modal from "../../Components/admin/Modal";
 
 export default function Products() {
-    const [searchParams, setSearchParams] = useSearchParams();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [newProduct, setNewProduct] = useState({ title: "", category: "", price: "", image: "", description: "" });
     const [editProductData, setEditProductData] = useState(null);
-    const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get("page")) || 1);
     const [productToDelete, setProductToDelete] = useState(null);
     const [deleting, setDeleting] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 8;
 
     const fetchProducts = async () => {
@@ -33,7 +31,23 @@ export default function Products() {
         }
     };
 
-    useEffect(() => { fetchProducts(); }, []);
+    useEffect(() => {
+        fetchProducts();
+    }, []);
+
+    // 1. FILTERING (Frontend Driven)
+    const filteredProducts = products.filter((p) =>
+        p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.category?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    // 2. PAGINATION (Frontend Driven)
+    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+    const currentProducts = filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    const handlePageChange = (p) => {
+        if (p >= 1 && p <= totalPages) setCurrentPage(p);
+    };
 
     const confirmDeleteProduct = async () => {
         if (!productToDelete) return;
@@ -41,9 +55,9 @@ export default function Products() {
         const pid = productToDelete.id || productToDelete._id;
         try {
             await deleteProduct(pid);
-            setProducts((prev) => prev.filter((p) => (p.id || p._id) !== pid));
             toast.success("Product deleted");
             setProductToDelete(null);
+            fetchProducts();
         } catch (err) {
             toast.error(err.response?.data?.message || "Failed to delete product");
         } finally {
@@ -56,11 +70,11 @@ export default function Products() {
         if (!title || !category || !price) { toast.error("Title, category and price are required"); return; }
         try {
             const payload = { title, description: newProduct.description || "", image: newProduct.image || "https://placehold.co/400x400?text=No+Image", price: parseFloat(price), category };
-            const res = await createProduct(payload);
-            setProducts((prev) => [res.data?.data, ...prev]);
+            await createProduct(payload);
             toast.success("Product added");
             setShowAddModal(false);
             setNewProduct({ title: "", category: "", price: "", image: "", description: "" });
+            fetchProducts();
         } catch (err) {
             toast.error(err.response?.data?.message || "Failed to add product");
         }
@@ -72,26 +86,17 @@ export default function Products() {
         const pid = editProductData.id || editProductData._id;
         try {
             const payload = { title, description: editProductData.description || "", image: editProductData.image || "https://placehold.co/400x400?text=No+Image", price: parseFloat(price), category };
-            const res = await updateProduct(pid, payload);
-            const updated = res.data?.data || { ...editProductData, ...payload };
-            setProducts((prev) => prev.map((p) => (p.id || p._id) === pid ? updated : p));
+            await updateProduct(pid, payload);
             toast.success("Product updated");
             setShowEditModal(false);
+            fetchProducts();
         } catch (err) {
             toast.error(err.response?.data?.message || "Failed to update product");
         }
     };
 
-    const filteredProducts = (Array.isArray(products) ? products : []).filter(
-        (p) => p.title?.toLowerCase().includes(searchQuery.toLowerCase()) || p.category?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-    const currentProducts = filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-    const handlePageChange = (page) => { setCurrentPage(page); setSearchParams({ page }); };
-
     return (
-        <div className="max-w-7xl mx-auto space-y-8">
+        <div className="max-w-7xl mx-auto space-y-8 pb-12">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                 <div>
                     <h1 className="text-3xl font-black text-white tracking-tight mb-1">Catalog Management</h1>
@@ -161,13 +166,32 @@ export default function Products() {
                 })}
             </DataTable>
 
-            {totalPages > 1 && !loading && (
-                <div className="flex justify-center items-center gap-2 mt-10">
-                    <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} className="px-4 py-2 bg-[#111111] border border-white/5 rounded-xl text-sm disabled:opacity-50 text-white font-medium">Previous</button>
-                    {[...Array(totalPages)].map((_, i) => (
-                        <button key={i} onClick={() => handlePageChange(i + 1)} className={`w-9 h-9 rounded-xl text-sm font-bold flex items-center justify-center transition-colors ${currentPage === i + 1 ? "bg-purple-600 text-white" : "bg-[#111111] text-gray-400 border border-white/5"}`}>{i + 1}</button>
-                    ))}
-                    <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} className="px-4 py-2 bg-[#111111] border border-white/5 rounded-xl text-sm disabled:opacity-50 text-white font-medium">Next</button>
+            {totalPages > 1 && (
+                <div className="flex items-center justify-between p-4 bg-[#111111]/50 rounded-2xl border border-white/5 shadow-lg">
+                    <div className="text-xs font-bold text-gray-500 uppercase tracking-widest hidden sm:block">
+                        Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredProducts.length)} of {filteredProducts.length} records
+                    </div>
+                    <div className="flex items-center gap-1 mx-auto sm:mx-0">
+                        <button
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className="p-2 bg-[#111111] rounded-lg text-white disabled:opacity-30 border border-white/10 hover:bg-white/5 transition-all"
+                        >
+                            <ChevronLeft size={18} />
+                        </button>
+
+                        <div className="flex items-center px-4 h-9 bg-purple-600/10 border border-purple-500/20 rounded-lg text-purple-400 font-bold text-sm">
+                            {currentPage} / {totalPages}
+                        </div>
+
+                        <button
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className="p-2 bg-[#111111] rounded-lg text-white disabled:opacity-30 border border-white/10 hover:bg-white/5 transition-all"
+                        >
+                            <ChevronRight size={18} />
+                        </button>
+                    </div>
                 </div>
             )}
 
@@ -209,7 +233,6 @@ function ProductForm({ product, setProduct, onSave, onCancel, submitLabel }) {
                     <label className="block text-xs font-semibold text-gray-400 mb-1 uppercase tracking-wider">Price INR *</label>
                     <input type="number" name="price" value={product?.price || ""} onChange={handleChange} className="w-full bg-white/[0.02] border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-purple-500/50 text-sm" />
                 </div>
-
             </div>
             <div className="relative">
                 <label className="block text-xs font-semibold text-gray-400 mb-1 uppercase tracking-wider">Image URL</label>

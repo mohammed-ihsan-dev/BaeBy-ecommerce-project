@@ -11,9 +11,9 @@ import {
     updateProduct,
     deleteProduct,
     getOrders,
-    updateOrderStatus,
-    getStats
+    updateOrderStatus
 } from "../controllers/adminController.js";
+
 import adminOnly from "../middlewares/adminMiddleware.js";
 import protect from "../middlewares/authMiddleware.js";
 import validateRequest from "../middlewares/validationMiddleware.js";
@@ -61,9 +61,5 @@ router.route("/orders")
 router.route("/orders/:id")
     .patch(validateRequest(updateOrderSchema), updateOrderStatus);
 
-
-// Dashboard stats
-router.route("/stats")
-    .get(getStats);
 
 export default router;

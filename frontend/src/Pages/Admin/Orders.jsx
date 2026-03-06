@@ -1,10 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { PackageCheck, XCircle, Edit2, ShieldAlert } from "lucide-react";
-import { useSearchParams } from "react-router-dom";
+import { PackageCheck, XCircle, Edit2, ShieldAlert, ChevronLeft, ChevronRight, Search } from "lucide-react";
 import toast from "react-hot-toast";
 import { getOrders, updateOrderStatus } from "../../api/adminApi";
-import api from "../../api/axiosInstance";
-
 import { convertUSDToINR } from "../../utils/currencyFormatter";
 import DataTable from "../../Components/admin/DataTable";
 import Badge from "../../Components/admin/Badge";
@@ -15,25 +12,45 @@ export default function Orders() {
     const [loading, setLoading] = useState(true);
     const [editingOrder, setEditingOrder] = useState(null);
     const [newStatus, setNewStatus] = useState("");
+    const [searchQuery, setSearchQuery] = useState("");
+    const [statusFilter, setStatusFilter] = useState("all");
+    const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 8;
 
-    const [searchParams, setSearchParams] = useSearchParams();
-    const [filter, setFilter] = useState(searchParams.get("filter") || "all");
-    const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get("page")) || 1);
-
-    useEffect(() => { fetchOrders(); }, []);
-    useEffect(() => { setFilter(searchParams.get("filter") || "all"); }, [searchParams]);
-
     const fetchOrders = async () => {
+        setLoading(true);
         try {
             const res = await getOrders();
-            const data = res.data?.data || [];
-            setOrders([...data].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
-        } catch (err) {
-            toast.error(err.response?.data?.message || "Failed to fetch orders");
+            setOrders(res.data?.data || []);
+        } catch (error) {
+            console.error("Orders fetch error:", error);
+            toast.error("Failed to load orders");
+            setOrders([]);
         } finally {
             setLoading(false);
         }
+    };
+
+    useEffect(() => {
+        fetchOrders();
+    }, []);
+
+    // 1. FILTERING (Frontend Driven)
+    const filteredOrders = orders.filter((o) => {
+        const oid = (o.id || o._id || "").toString().toLowerCase();
+        const matchesSearch = oid.includes(searchQuery.toLowerCase()) ||
+            o.user?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            o.status?.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesStatus = statusFilter === "all" || o.status === statusFilter;
+        return matchesSearch && matchesStatus;
+    });
+
+    // 2. PAGINATION (Frontend Driven)
+    const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+    const currentOrders = filteredOrders.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    const handlePageChange = (p) => {
+        if (p >= 1 && p <= totalPages) setCurrentPage(p);
     };
 
     const handleUpdateStatus = async () => {
@@ -41,45 +58,45 @@ export default function Orders() {
         const orderId = editingOrder.id || editingOrder._id;
         try {
             await updateOrderStatus(orderId, { status: newStatus });
-
-            setOrders(prev => prev.map(o => (o.id || o._id) === orderId ? { ...o, status: newStatus } : o));
             toast.success(`Order updated to "${newStatus}"`);
             setEditingOrder(null);
+            fetchOrders();
         } catch (err) {
             toast.error(err.response?.data?.message || "Failed to update order");
         }
     };
 
-    const filteredOrders = orders.filter(o => filter === "all" || o.status?.toLowerCase().includes(filter.toLowerCase()));
-    const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
-    const currentOrders = filteredOrders.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-    const handlePageChange = (page) => { setCurrentPage(page); setSearchParams({ filter, page }); };
-    const handleFilterChange = (type) => {
-        setFilter(type); setCurrentPage(1);
-        if (type === "all") setSearchParams({});
-        else setSearchParams({ filter: type, page: 1 });
-    };
-
     return (
-        <div className="max-w-7xl mx-auto space-y-8">
+        <div className="max-w-7xl mx-auto space-y-8 pb-12">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-black text-white tracking-tight mb-1">Order Management</h1>
                     <p className="text-gray-400 font-medium">Track and resolve customer purchases.</p>
                 </div>
-                <div className="flex items-center gap-3 bg-[#111111]/80 px-5 py-3 border border-white/[0.05] rounded-2xl shadow-xl">
-                    <span className="text-sm text-gray-400 font-bold uppercase tracking-widest">Volume</span>
-                    <span className="text-xl text-purple-400 font-black">{orders.length}</span>
+                <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+                    <div className="relative w-full sm:w-64">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4" />
+                        <input
+                            type="text"
+                            placeholder="Search by ID, User or Status..."
+                            value={searchQuery}
+                            onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+                            className="w-full bg-[#111111]/80 border border-white/[0.05] pl-10 pr-4 py-2.5 rounded-2xl text-gray-200 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all text-sm"
+                        />
+                    </div>
+                    <div className="flex items-center gap-3 bg-[#111111]/80 px-5 py-2.5 border border-white/[0.05] rounded-2xl shadow-xl">
+                        <span className="text-xs text-gray-400 font-bold uppercase tracking-widest hidden lg:block">Volume</span>
+                        <span className="text-lg text-purple-400 font-black">{filteredOrders.length}</span>
+                    </div>
                 </div>
             </div>
 
             <div className="flex flex-wrap gap-2 md:gap-3 bg-[#111111]/80 backdrop-blur-3xl p-3 rounded-3xl border border-white/[0.05] shadow-xl overflow-x-auto">
-                {["all", "Pending COD", "Paid", "Delivered", "Cancelled"].map((type) => (
+                {["all", "pending", "Pending COD", "Paid", "Delivered", "Cancelled"].map((type) => (
                     <button
                         key={type}
-                        onClick={() => handleFilterChange(type)}
-                        className={`px-5 py-2 rounded-xl text-sm font-bold capitalize transition-all whitespace-nowrap ${filter === type
+                        onClick={() => { setStatusFilter(type); setCurrentPage(1); }}
+                        className={`px-5 py-2 rounded-xl text-sm font-bold capitalize transition-all whitespace-nowrap ${statusFilter === type
                             ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-[0_0_15px_rgba(168,85,247,0.3)]"
                             : "bg-white/[0.02] text-gray-400 border border-white/5 hover:bg-white/[0.05] hover:text-white"
                             }`}
@@ -142,15 +159,32 @@ export default function Orders() {
                 })}
             </DataTable>
 
-            {totalPages > 1 && !loading && (
-                <div className="flex justify-center items-center gap-2 mt-10">
-                    <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} className="px-4 py-2 bg-[#111111] border border-white/5 rounded-xl text-sm disabled:opacity-30 text-white font-medium">Previous</button>
-                    <div className="flex gap-1.5 px-2">
-                        {[...Array(totalPages)].map((_, i) => (
-                            <button key={i} onClick={() => handlePageChange(i + 1)} className={`w-9 h-9 rounded-xl text-sm font-bold flex items-center justify-center transition-colors ${currentPage === i + 1 ? "bg-purple-600 text-white shadow-[0_0_10px_rgba(168,85,247,0.5)]" : "bg-[#111111] border border-white/5 text-gray-400 hover:bg-white/10"}`}>{i + 1}</button>
-                        ))}
+            {totalPages > 1 && (
+                <div className="flex items-center justify-between p-4 bg-[#111111]/50 rounded-2xl border border-white/5 shadow-lg">
+                    <div className="text-xs font-bold text-gray-500 uppercase tracking-widest hidden sm:block">
+                        Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredOrders.length)} of {filteredOrders.length} records
                     </div>
-                    <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} className="px-4 py-2 bg-[#111111] border border-white/5 rounded-xl text-sm disabled:opacity-30 text-white font-medium">Next</button>
+                    <div className="flex items-center gap-1 mx-auto sm:mx-0">
+                        <button
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className="p-2 bg-[#111111] rounded-lg text-white disabled:opacity-30 border border-white/10 hover:bg-white/5 transition-all"
+                        >
+                            <ChevronLeft size={18} />
+                        </button>
+
+                        <div className="flex items-center px-4 h-9 bg-purple-600/10 border border-purple-500/20 rounded-lg text-purple-400 font-bold text-sm">
+                            {currentPage} / {totalPages}
+                        </div>
+
+                        <button
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className="p-2 bg-[#111111] rounded-lg text-white disabled:opacity-30 border border-white/10 hover:bg-white/5 transition-all"
+                        >
+                            <ChevronRight size={18} />
+                        </button>
+                    </div>
                 </div>
             )}
 
@@ -167,6 +201,7 @@ export default function Orders() {
                                 onChange={(e) => setNewStatus(e.target.value)}
                                 className="w-full bg-white/[0.02] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-purple-500/50 text-sm appearance-none cursor-pointer"
                             >
+                                <option value="pending" className="bg-[#111111]">Pending</option>
                                 <option value="Pending COD" className="bg-[#111111]">Pending COD</option>
                                 <option value="Paid" className="bg-[#111111]">Paid</option>
                                 <option value="Delivered" className="bg-[#111111]">Delivered</option>

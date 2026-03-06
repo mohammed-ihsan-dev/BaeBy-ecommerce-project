@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { UserCheck, UserX, Users as UsersIcon, Edit2, Trash2, Search, Filter, Shield, User as SingleUser } from "lucide-react";
+import { UserCheck, UserX, Users as UsersIcon, Edit2, Trash2, Search, Filter, Shield, User as SingleUser, ChevronLeft, ChevronRight } from "lucide-react";
 import toast from "react-hot-toast";
 import { getUsers, deleteUser, updateUser } from "../../api/adminApi";
 import DataTable from "../../Components/admin/DataTable";
@@ -11,7 +11,8 @@ export default function Users() {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
-    const [filter, setFilter] = useState("all");
+    const [roleFilter, setRoleFilter] = useState("all");
+    const [statusFilter, setStatusFilter] = useState("all");
     const [editingUser, setEditingUser] = useState(null);
     const [editForm, setEditForm] = useState({ name: "", email: "", role: "", status: "" });
     const [deleteUserModal, setDeleteUserModal] = useState(null);
@@ -25,21 +26,39 @@ export default function Users() {
             setUsers(res.data?.data || []);
         } catch (err) {
             toast.error(err.response?.data?.message || "Failed to fetch users");
-            setUsers([]);
         } finally {
             setLoading(false);
         }
     };
 
-    useEffect(() => { fetchUsers(); }, []);
+    useEffect(() => {
+        fetchUsers();
+    }, []);
+
+    // 1. FILTERING (Frontend Driven)
+    const filteredUsers = users.filter((u) => {
+        const matchesSearch = u.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            u.email?.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesRole = roleFilter === "all" || u.role === roleFilter;
+        const matchesStatus = statusFilter === "all" || (u.status || "active") === statusFilter;
+        return matchesSearch && matchesRole && matchesStatus;
+    });
+
+    // 2. PAGINATION (Frontend Driven)
+    const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+    const currentUsers = filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    const handlePageChange = (p) => {
+        if (p >= 1 && p <= totalPages) setCurrentPage(p);
+    };
 
     const confirmDelete = async () => {
         const userId = deleteUserModal.id || deleteUserModal._id;
         try {
             await deleteUser(userId);
-            setUsers((prev) => prev.filter((u) => (u.id || u._id) !== userId));
             toast.success("User deleted successfully");
             setDeleteUserModal(null);
+            fetchUsers();
         } catch (err) {
             toast.error(err.response?.data?.message || "Failed to delete user");
         }
@@ -56,46 +75,28 @@ export default function Users() {
         const userId = editingUser.id || editingUser._id;
         try {
             await updateUser(userId, editForm);
-            setUsers((prev) => prev.map((u) => (u.id || u._id) === userId ? { ...u, ...editForm } : u));
             toast.success("User updated successfully");
             setEditingUser(null);
+            fetchUsers();
         } catch (err) {
             toast.error(err.response?.data?.message || "Failed to update user");
         }
     };
 
-    const totalUsers = users.length;
-    const activeUsers = users.filter((u) => u.status === "active").length;
-    const inactiveUsers = users.filter((u) => u.status === "inactive").length;
-
-    const filteredUsers = users.filter((u) => {
-        const q = searchQuery.toLowerCase();
-        const matchSearch = u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q);
-        const matchFilter = filter === "all" ? true
-            : filter === "active" ? u.status === "active"
-                : filter === "inactive" ? u.status === "inactive"
-                    : filter === "admin" ? u.role === "admin"
-                        : u.role === "user";
-        return matchSearch && matchFilter;
-    });
-
-    const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-    const currentUsers = filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
     return (
-        <div className="max-w-7xl mx-auto space-y-8">
+        <div className="max-w-7xl mx-auto space-y-8 pb-12">
             <div>
                 <h1 className="text-3xl font-black text-white tracking-tight mb-1">User Management</h1>
                 <p className="text-gray-400 font-medium">Manage platform accounts and roles.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <StatCard title="Total Users" value={totalUsers} icon={UsersIcon} color="blue" />
-                <StatCard title="Active Users" value={activeUsers} icon={UserCheck} color="emerald" />
-                <StatCard title="Inactive Users" value={inactiveUsers} icon={UserX} color="rose" />
+                <StatCard title="Total Users" value={users.length} icon={UsersIcon} color="blue" />
+                <StatCard title="Active Results" value={filteredUsers.length} icon={UserCheck} color="emerald" />
+                <StatCard title="Filters Active" value={roleFilter !== 'all' || statusFilter !== 'all' ? "Yes" : "No"} icon={Filter} color="purple" />
             </div>
 
-            <div className="flex flex-col md:flex-row gap-4 bg-[#111111]/80 backdrop-blur-3xl p-4 rounded-3xl border border-white/[0.05] shadow-xl">
+            <div className="flex flex-col lg:flex-row gap-4 bg-[#111111]/80 backdrop-blur-3xl p-4 rounded-3xl border border-white/[0.05] shadow-xl">
                 <div className="relative flex-1">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
                     <input
@@ -105,19 +106,31 @@ export default function Users() {
                         className="w-full bg-white/[0.02] border border-white/[0.05] pl-12 pr-4 py-3 rounded-2xl text-gray-200 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all text-sm placeholder:text-gray-600"
                     />
                 </div>
-                <div className="relative md:w-64">
-                    <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
-                    <select
-                        value={filter}
-                        onChange={(e) => { setFilter(e.target.value); setCurrentPage(1); }}
-                        className="w-full bg-white/[0.02] border border-white/[0.05] pl-12 pr-4 py-3 rounded-2xl text-gray-200 focus:outline-none focus:border-purple-500/50 transition-all text-sm appearance-none"
-                    >
-                        <option value="all" className="bg-[#111111]">All Users</option>
-                        <option value="active" className="bg-[#111111]">Active</option>
-                        <option value="inactive" className="bg-[#111111]">Inactive</option>
-                        <option value="admin" className="bg-[#111111]">Admins</option>
-                        <option value="user" className="bg-[#111111]">Regular Users</option>
-                    </select>
+                <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="relative md:w-48">
+                        <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
+                        <select
+                            value={roleFilter}
+                            onChange={(e) => { setRoleFilter(e.target.value); setCurrentPage(1); }}
+                            className="w-full bg-white/[0.02] border border-white/[0.05] pl-12 pr-4 py-3 rounded-2xl text-gray-200 focus:outline-none focus:border-purple-500/50 transition-all text-sm appearance-none"
+                        >
+                            <option value="all" className="bg-[#111111]">All Roles</option>
+                            <option value="admin" className="bg-[#111111]">Admins</option>
+                            <option value="user" className="bg-[#111111]">Users</option>
+                        </select>
+                    </div>
+                    <div className="relative md:w-48">
+                        <UserCheck className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
+                            className="w-full bg-white/[0.02] border border-white/[0.05] pl-12 pr-4 py-3 rounded-2xl text-gray-200 focus:outline-none focus:border-purple-500/50 transition-all text-sm appearance-none"
+                        >
+                            <option value="all" className="bg-[#111111]">All Status</option>
+                            <option value="active" className="bg-[#111111]">Active</option>
+                            <option value="inactive" className="bg-[#111111]">Inactive</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -165,13 +178,32 @@ export default function Users() {
                 })}
             </DataTable>
 
-            {totalPages > 1 && !loading && (
-                <div className="flex justify-center items-center gap-2 mt-8">
-                    <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="px-4 py-2 bg-[#111111] rounded-xl text-sm disabled:opacity-50 text-white font-medium border border-white/5">Prev</button>
-                    {[...Array(totalPages)].map((_, i) => (
-                        <button key={i} onClick={() => setCurrentPage(i + 1)} className={`w-9 h-9 rounded-xl text-sm font-bold transition-colors flex items-center justify-center ${currentPage === i + 1 ? "bg-purple-600 text-white shadow-[0_0_10px_rgba(168,85,247,0.4)]" : "bg-[#111111] text-gray-400 hover:bg-white/10 border border-white/5"}`}>{i + 1}</button>
-                    ))}
-                    <button onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages} className="px-4 py-2 bg-[#111111] rounded-xl text-sm disabled:opacity-50 text-white font-medium border border-white/5">Next</button>
+            {totalPages > 1 && (
+                <div className="flex items-center justify-between p-4 bg-[#111111]/50 rounded-2xl border border-white/5">
+                    <div className="text-xs font-bold text-gray-500 uppercase tracking-widest hidden sm:block">
+                        Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredUsers.length)} of {filteredUsers.length} records
+                    </div>
+                    <div className="flex items-center gap-1 mx-auto sm:mx-0">
+                        <button
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1}
+                            className="p-2 bg-[#111111] rounded-lg text-white disabled:opacity-30 border border-white/10 hover:bg-white/5 transition-all"
+                        >
+                            <ChevronLeft size={18} />
+                        </button>
+
+                        <div className="flex items-center px-4 h-9 bg-purple-600/10 border border-purple-500/20 rounded-lg text-purple-400 font-bold text-sm">
+                            {currentPage} / {totalPages}
+                        </div>
+
+                        <button
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages}
+                            className="p-2 bg-[#111111] rounded-lg text-white disabled:opacity-30 border border-white/10 hover:bg-white/5 transition-all"
+                        >
+                            <ChevronRight size={18} />
+                        </button>
+                    </div>
                 </div>
             )}
 

@@ -3,6 +3,8 @@ import { Menu, Search, Bell, LogOut, Settings } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import GlobalSearch from './GlobalSearch';
+
 
 export default function TopNavbar({ isOpen, setIsOpen }) {
     const [showLogout, setShowLogout] = useState(false);
@@ -26,17 +28,8 @@ export default function TopNavbar({ isOpen, setIsOpen }) {
                         <Menu size={20} />
                     </button>
 
-                    <div className="hidden sm:flex items-center gap-2 bg-[#111111] px-4 py-2.5 rounded-2xl border border-white/5 w-72 focus-within:border-purple-500/50 focus-within:ring-1 focus-within:ring-purple-500/20 transition-all group">
-                        <Search size={18} className="text-gray-500 group-focus-within:text-purple-400 transition-colors" />
-                        <input
-                            type="text"
-                            placeholder="Search workspaces..."
-                            className="bg-transparent text-sm text-gray-200 placeholder:text-gray-600 outline-none w-full"
-                        />
-                        <div className="hidden lg:flex items-center justify-center bg-white/5 rounded px-1.5 py-0.5 border border-white/5 group-focus-within:opacity-0 transition-opacity">
-                            <span className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">⌘K</span>
-                        </div>
-                    </div>
+                    <GlobalSearch />
+
                 </div>
 
                 <div className="flex items-center gap-5">

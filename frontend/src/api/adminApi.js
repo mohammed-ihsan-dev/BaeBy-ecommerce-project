@@ -42,12 +42,6 @@ export const updateOrderStatus = async (id, data) => {
   return await api.patch(`/api/admin/orders/${id}`, data);
 };
 
-/* ================= DASHBOARD ================= */
-
-export const getStats = async () => {
-  return await api.get("/api/admin/stats");
-};
-
 /* ================= AUTH ================= */
 
 export const adminLogin = async (data) => {
