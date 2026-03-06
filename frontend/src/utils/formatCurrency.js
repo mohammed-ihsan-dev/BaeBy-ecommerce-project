@@ -1,9 +1,14 @@
 /**
  * Formats a price in Indian Rupees (INR) with Indian number formatting.
  * 
- * NOTE: Multiplication by 91 removed because DB already stores INR values.
+ * Example:
+ * 4550 -> ₹4,550
+ * 125000 -> ₹1,25,000
+ * 
+ * @param {number|string} price - The price to format.
+ * @returns {string} The formatted price string.
  */
-export const convertUSDToINR = (price) => {
+export const formatINR = (price) => {
     const numericPrice = typeof price === 'string' ? parseFloat(price) : price;
 
     if (isNaN(numericPrice)) {
@@ -17,4 +22,3 @@ export const convertUSDToINR = (price) => {
         maximumFractionDigits: 0,
     }).format(numericPrice);
 };
-

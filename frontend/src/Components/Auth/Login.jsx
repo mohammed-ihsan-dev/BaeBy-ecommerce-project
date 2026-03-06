@@ -1,17 +1,14 @@
-
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../Context/AuthContext";
 import toast from "react-hot-toast";
 
 function Login() {
-  const { login, setUser, user } = useAuth();
+  const { login, user } = useAuth();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
-  const [showRoleModal, setShowRoleModal] = useState(false);
-  const [tempUser, setTempUser] = useState(null);
 
   // Auto redirect if already logged in
   useEffect(() => {
@@ -38,13 +35,11 @@ function Login() {
       }
 
       const loggedUser = res.user;
+      toast.success("You are successfully logged in!");
 
-      // If it's an admin, show modal
       if (loggedUser.role === "admin") {
-        setTempUser(loggedUser);
-        setShowRoleModal(true);
+        navigate("/admin");
       } else {
-        toast.success("You are successfully logged in!");
         navigate("/");
       }
     } catch (err) {
@@ -52,21 +47,6 @@ function Login() {
       setError("Something went wrong. Please try again.");
       toast.error("Something went wrong.");
     }
-  };
-
-  const handleRoleChoice = (path) => {
-    if (!tempUser) return;
-
-    setUser(tempUser);
-    localStorage.setItem("user", JSON.stringify(tempUser));
-    setShowRoleModal(false);
-
-    setTimeout(() => {
-      toast.success(
-        path === "/admin" ? "Welcome back, Admin!" : "Logged in as User!"
-      );
-      navigate(path);
-    }, 200);
   };
 
   return (
@@ -155,38 +135,6 @@ function Login() {
           Protected by Secure Auth &bull; &copy; 2026 BaeBy Store
         </p>
       </div>
-
-      {/* Modal for Admin Role Choice */}
-      {showRoleModal && (
-        <div className="fixed inset-0 bg-[#0F172A]/40 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-          <div className="bg-white rounded-[32px] shadow-2xl p-8 sm:p-10 w-full max-w-[360px] text-center">
-            <div className="w-16 h-16 bg-pink-50 text-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-            </div>
-            <h3 className="text-2xl font-black text-[#0F172A] mb-3 tracking-tight">
-              Admin Gateway
-            </h3>
-            <p className="text-gray-400 text-sm font-medium mb-8 leading-relaxed px-2">
-              You possess administrative privileges. Choose your session perspective:
-            </p>
-
-            <div className="flex flex-col gap-3">
-              <button
-                onClick={() => handleRoleChoice("/admin")}
-                className="w-full bg-[#0F172A] text-white py-3.5 rounded-xl font-bold hover:bg-black transition-all active:scale-[0.98]"
-              >
-                Access Dashboard
-              </button>
-              <button
-                onClick={() => handleRoleChoice("/")}
-                className="w-full bg-gray-50 text-gray-500 py-3.5 rounded-xl font-bold hover:bg-gray-100 transition-all active:scale-[0.98]"
-              >
-                View as Customer
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

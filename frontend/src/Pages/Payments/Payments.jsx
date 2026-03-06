@@ -3,6 +3,8 @@ import axios from "axios";
 import api from "../../utils/api";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../Context/AuthContext";
+import { formatINR } from "../../utils/formatCurrency";
+
 
 function Payment() {
   const navigate = useNavigate();
@@ -314,16 +316,16 @@ function Payment() {
             </h3>
             <p className="text-pink-600 font-bold">
               {Array.isArray(product)
-                ? `$${product
+                ? formatINR(product
                   .reduce(
                     (sum, p) =>
                       sum +
                       cleanPrice(p.price || p.amount) * (p.quantity || 1),
                     0
-                  )
-                  .toFixed(2)}`
-                : `$${cleanPrice(product.price || product.amount).toFixed(2)}`}
+                  ))
+                : formatINR(cleanPrice(product.price || product.amount))}
             </p>
+
           </div>
         )}
 

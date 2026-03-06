@@ -3,11 +3,15 @@ import { Link, useNavigate } from "react-router-dom";
 import { Lock, Mail, ArrowRight } from "lucide-react";
 import { adminLogin } from "../../api/adminApi";
 import toast from "react-hot-toast";
+import { useAuth } from "../../Context/AuthContext";
+
 
 export default function AdminLogin() {
     const [form, setForm] = useState({ email: "", password: "" });
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const { setUser } = useAuth();
+
 
     useEffect(() => {
         if (localStorage.getItem("adminToken")) {
@@ -24,11 +28,21 @@ export default function AdminLogin() {
         setLoading(true);
         try {
             const res = await adminLogin(form);
-            const { jwt_token } = res.data.data;
+            const { jwt_token, user } = res.data.data;
+
+            // Sync with global context
+            setUser(user);
+
+            // Persist for protected route and refresh
             localStorage.setItem("adminToken", jwt_token);
+            localStorage.setItem("token", jwt_token); // Use standard token key as well
+            localStorage.setItem("user", JSON.stringify(user));
+            localStorage.setItem("userInfo", JSON.stringify({ ...user, token: jwt_token }));
+
             toast.success("Welcome back, Admin!");
             navigate("/admin");
         } catch (err) {
+
             console.error(err);
             toast.error(err.response?.data?.message || "Invalid Admin Credentials");
         } finally {

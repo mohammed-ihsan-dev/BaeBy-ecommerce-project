@@ -5,6 +5,8 @@ import { useCart } from "../../Context/CartContext";
 import { useWishlist } from "../../Context/WishlistContext";
 import { FaHeart, FaEye, FaShoppingBag } from "react-icons/fa";
 import { useAuth } from "../../Context/AuthContext";
+import { formatINR } from "../../utils/formatCurrency";
+
 
 function AllProducts() {
   const { category } = useParams();
@@ -46,9 +48,10 @@ function AllProducts() {
 
   // 3. Stable Price Filter values
   const prices = useMemo(() => ({
-    max: filterType === "20to40" ? 40 : (filterType === "under20" ? 20 : (priceRange || undefined)),
-    min: filterType === "20to40" ? 20 : (filterType === "above40" ? 40 : undefined)
+    max: filterType === "1800to3600" ? 3600 : (filterType === "under1800" ? 1800 : (priceRange || undefined)),
+    min: filterType === "1800to3600" ? 1800 : (filterType === "above3600" ? 3600 : undefined)
   }), [filterType, priceRange]);
+
 
   const { products, totalPages, loading, error } = useProducts({
     category,
@@ -170,9 +173,10 @@ function AllProducts() {
                       {name}
                     </h3>
                     <div className="flex items-center gap-2 mb-4">
-                      <span className="text-xs text-gray-400 line-through tracking-wider">$ {(product.price * 1.2).toFixed(2)}</span>
-                      <span className="text-xl font-black text-gray-900 tracking-tight">${product.price}</span>
+                      <span className="text-xs text-gray-400 line-through tracking-wider">{formatINR(product.price * 1.2)}</span>
+                      <span className="text-xl font-black text-gray-900 tracking-tight">{formatINR(product.price)}</span>
                     </div>
+
 
                     <button
                       onClick={() => {

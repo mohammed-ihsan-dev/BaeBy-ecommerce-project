@@ -97,7 +97,7 @@ export default function Dashboard() {
                             <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
                             <XAxis dataKey="name" stroke="#888" fontSize={12} tickLine={false} axisLine={false} />
                             <YAxis stroke="#888" fontSize={12} tickLine={false} axisLine={false} />
-                            <Tooltip cursor={{ fill: "rgba(255,255,255,0.02)" }} contentStyle={{ backgroundColor: "#18181b", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px" }} />
+                            <Tooltip cursor={{ fill: "rgba(255,255,255,0.02)" }} contentStyle={{ backgroundColor: "#6c6c74ff", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px" }} />
                             <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                                 {barData.map((_, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
                             </Bar>
@@ -113,7 +113,7 @@ export default function Dashboard() {
                                 <Pie data={pieData} dataKey="value" outerRadius={110} innerRadius={80} stroke="transparent" paddingAngle={5}>
                                     {pieData.map((_, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
                                 </Pie>
-                                <Tooltip contentStyle={{ backgroundColor: "#18181b", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px" }} />
+                                <Tooltip contentStyle={{ backgroundColor: "#6c6c74ff", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px" }} />
                             </PieChart>
                         </ResponsiveContainer>
                         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">

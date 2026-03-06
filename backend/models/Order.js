@@ -44,8 +44,18 @@ const orderSchema = mongoose.Schema(
     },
     {
         timestamps: true,
+        toJSON: {
+            virtuals: true,
+            transform: (doc, ret) => {
+                ret.id = ret._id;
+                delete ret._id;
+                delete ret.__v;
+            },
+        },
+        toObject: { virtuals: true },
     }
 );
+
 
 const Order = mongoose.model("Order", orderSchema);
 

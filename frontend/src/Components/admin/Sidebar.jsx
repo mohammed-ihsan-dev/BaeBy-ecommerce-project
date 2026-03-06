@@ -25,7 +25,7 @@ export default function Sidebar({ isOpen, setIsOpen }) {
                             B
                         </div>
                         <span className="text-2xl font-black text-white tracking-tight">
-                            BaeBy<span className="text-purple-500">.</span>
+                            BaeBy<span className="text-purple-500">Admin</span>
                         </span>
                     </Link>
                 </div>

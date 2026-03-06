@@ -4,6 +4,8 @@ import useProducts from "../../hooks/useProducts";
 import { useCart } from "../../Context/CartContext";
 import { useWishlist } from "../../Context/WishlistContext";
 import { FaHeart } from "react-icons/fa";
+import { formatINR } from "../../utils/formatCurrency";
+
 
 function SkinCare() {
   const { products, loading, error } = useProducts("skincare");
@@ -17,13 +19,14 @@ function SkinCare() {
     let updatedProducts = [...products];
 
     //  Apply Filter
-    if (filterType === "under20") {
-      updatedProducts = updatedProducts.filter((p) => p.price < 20);
-    } else if (filterType === "20to40") {
-      updatedProducts = updatedProducts.filter((p) => p.price >= 20 && p.price <= 40);
-    } else if (filterType === "above40") {
-      updatedProducts = updatedProducts.filter((p) => p.price > 40);
+    if (filterType === "under1800") {
+      updatedProducts = updatedProducts.filter((p) => p.price < 1800);
+    } else if (filterType === "1800to3600") {
+      updatedProducts = updatedProducts.filter((p) => p.price >= 1800 && p.price <= 3600);
+    } else if (filterType === "above3600") {
+      updatedProducts = updatedProducts.filter((p) => p.price > 3600);
     }
+
 
     //  Apply Sort
     if (sortType === "lowToHigh") {
@@ -82,8 +85,9 @@ function SkinCare() {
                     {product.description}
                   </p>
                   <p className="text-pink-600 font-bold text-lg">
-                    ${product.price}
+                    {formatINR(product.price)}
                   </p>
+
 
                   <div className="flex justify-center gap-3 mt-3">
                     <button

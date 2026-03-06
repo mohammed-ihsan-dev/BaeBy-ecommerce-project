@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { PackageCheck, XCircle, Edit2, ShieldAlert } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
-import { getOrders } from "../../api/adminApi";
+import { getOrders, updateOrderStatus } from "../../api/adminApi";
 import api from "../../api/axiosInstance";
+
 import { convertUSDToINR } from "../../utils/currencyFormatter";
 import DataTable from "../../Components/admin/DataTable";
 import Badge from "../../Components/admin/Badge";
@@ -39,7 +40,8 @@ export default function Orders() {
         if (!newStatus) return;
         const orderId = editingOrder.id || editingOrder._id;
         try {
-            await api.patch(`/api/admin/orders/${orderId}`, { status: newStatus });
+            await updateOrderStatus(orderId, { status: newStatus });
+
             setOrders(prev => prev.map(o => (o.id || o._id) === orderId ? { ...o, status: newStatus } : o));
             toast.success(`Order updated to "${newStatus}"`);
             setEditingOrder(null);
@@ -78,8 +80,8 @@ export default function Orders() {
                         key={type}
                         onClick={() => handleFilterChange(type)}
                         className={`px-5 py-2 rounded-xl text-sm font-bold capitalize transition-all whitespace-nowrap ${filter === type
-                                ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-[0_0_15px_rgba(168,85,247,0.3)]"
-                                : "bg-white/[0.02] text-gray-400 border border-white/5 hover:bg-white/[0.05] hover:text-white"
+                            ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-[0_0_15px_rgba(168,85,247,0.3)]"
+                            : "bg-white/[0.02] text-gray-400 border border-white/5 hover:bg-white/[0.05] hover:text-white"
                             }`}
                     >
                         {type === "all" ? "All Orders" : type}

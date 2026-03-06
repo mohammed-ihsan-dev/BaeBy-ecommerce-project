@@ -1,6 +1,8 @@
 import React from "react";
 import { useWishlist } from "../../Context/WishlistContext";
 import { useCart } from "../../Context/CartContext";
+import { formatINR } from "../../utils/formatCurrency";
+
 
 function WishlistPage() {
   const { wishlist, removeFromWishlist } = useWishlist();
@@ -38,7 +40,8 @@ function WishlistPage() {
                 <h3 className="font-semibold text-lg text-gray-800">
                   {item.name || item.title}
                 </h3>
-                <p className="text-gray-600 mb-3">${item.price}</p>
+                <p className="text-gray-600 mb-3">{formatINR(item.price)}</p>
+
 
                 <div className="flex gap-3">
                   {/* Remove Button */}

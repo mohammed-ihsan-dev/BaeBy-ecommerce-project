@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useAuth } from "../../Context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import api from "../../utils/api";
+import { formatINR } from "../../utils/formatCurrency";
+
 
 function Orders() {
   const { user } = useAuth();
@@ -100,7 +102,8 @@ function Orders() {
                     <p className="font-semibold text-gray-800">{item.name}</p>
                     <p className="text-sm text-gray-400">Quantity: {item.quantity}</p>
                   </div>
-                  <p className="font-bold text-gray-800">${item.price}</p>
+                  <p className="font-bold text-gray-800">{formatINR(item.price)}</p>
+
                 </div>
               ))}
             </div>
@@ -114,7 +117,8 @@ function Orders() {
               </div>
               <div className="bg-pink-50 p-4 rounded-xl flex items-center justify-between md:min-w-[200px]">
                 <span className="text-pink-800 font-medium">Total Amount</span>
-                <span className="text-2xl font-extrabold text-pink-600">${order.totalAmount?.toFixed(2)}</span>
+                <span className="text-2xl font-extrabold text-pink-600">{formatINR(order.totalAmount)}</span>
+
               </div>
             </div>
           </div>

@@ -5,6 +5,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useCart } from "../../Context/CartContext";
 import { useAuth } from "../../Context/AuthContext";
+import { formatINR } from "../../utils/formatCurrency";
+
 
 function ProductDetails() {
   const { id } = useParams();
@@ -120,9 +122,10 @@ function ProductDetails() {
 
           <div className="flex items-center gap-4 mt-6">
             <span className="text-3xl md:text-4xl font-black text-pink-500 tracking-tight">
-              ${product.price}
+              {formatINR(product.price)}
             </span>
           </div>
+
 
           <hr className="border-gray-100 my-8" />
 
@@ -158,8 +161,8 @@ function ProductDetails() {
               <button
                 onClick={handleAddToCart}
                 className={`w-full sm:w-[220px] flex items-center justify-center px-8 py-4 rounded-[16px] font-bold text-[15px] tracking-wide border-2 transition-all duration-300 ${added
-                    ? "bg-pink-500 border-pink-500 text-white scale-[1.02] shadow-lg shadow-pink-500/25"
-                    : "border-pink-200 text-pink-600 bg-transparent hover:bg-pink-50 hover:border-pink-400 hover:text-pink-600"
+                  ? "bg-pink-500 border-pink-500 text-white scale-[1.02] shadow-lg shadow-pink-500/25"
+                  : "border-pink-200 text-pink-600 bg-transparent hover:bg-pink-50 hover:border-pink-400 hover:text-pink-600"
                   }`}
               >
                 {added ? "Added to Cart ✓" : "Add to Cart"}

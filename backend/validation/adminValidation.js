@@ -35,3 +35,18 @@ export const updateProductSchema = Joi.object({
 
   category: Joi.string().min(2).optional(),
 });
+
+/* ---------------- UPDATE USER ---------------- */
+
+export const updateUserSchema = Joi.object({
+  name: Joi.string().min(2).optional(),
+  email: Joi.string().email().optional(),
+  role: Joi.string().valid("user", "admin").optional(),
+  status: Joi.string().valid("active", "inactive").optional(),
+});
+
+/* ---------------- UPDATE ORDER STATUS ---------------- */
+
+export const updateOrderSchema = Joi.object({
+  status: Joi.string().valid("Pending COD", "Paid", "Delivered", "Cancelled").required(),
+});

@@ -7,7 +7,8 @@ function Products() {
 
   const [sortType, setSortType] = useState(searchParams.get("sort") || null);
   const [filterType, setFilterType] = useState(searchParams.get("filter") || null);
-  const [priceRange, setPriceRange] = useState(500);
+  const [priceRange, setPriceRange] = useState(10000);
+
 
   const categories = [
     { name: "All Collections", path: "/products" },
@@ -84,23 +85,25 @@ function Products() {
                 <input
                   type="range"
                   min="0"
-                  max="500"
+                  max="10000"
+                  step="100"
                   value={priceRange}
                   onChange={(e) => setPriceRange(e.target.value)}
                   className="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-pink-500"
                 />
                 <div className="flex justify-between text-xs font-bold text-gray-600 uppercase tracking-widest">
-                  <span>$0</span>
-                  <span className="text-pink-600">Up to ${priceRange}</span>
+                  <span>₹0</span>
+                  <span className="text-pink-600">Up to ₹{new Intl.NumberFormat('en-IN').format(priceRange)}</span>
                 </div>
 
                 <div className="grid grid-cols-1 gap-2 pt-2">
                   {[
                     { label: "All Prices", value: "default" },
-                    { label: "Under $20", value: "under20" },
-                    { label: "$20 - $40", value: "20to40" },
-                    { label: "Above $40", value: "above40" },
+                    { label: "Under ₹1,800", value: "under1800" },
+                    { label: "₹1,800 - ₹3,600", value: "1800to3600" },
+                    { label: "Above ₹3,600", value: "above3600" },
                   ].map((opt) => (
+
                     <button
                       key={opt.value}
                       onClick={() => handleFilterChange(opt.value)}
@@ -169,9 +172,10 @@ function Products() {
                 className="flex-1 bg-gray-50 border-none rounded-xl px-4 py-2 text-xs font-bold text-gray-700 focus:ring-2 focus:ring-pink-200"
               >
                 <option value="default">Filters</option>
-                <option value="under20">Under $20</option>
-                <option value="20to40">$20 - $40</option>
-                <option value="above40">Above $40</option>
+                <option value="under1800">Under ₹1,800</option>
+                <option value="1800to3600">₹1,800 - ₹3,600</option>
+                <option value="above3600">Above ₹3,600</option>
+
               </select>
 
               <select

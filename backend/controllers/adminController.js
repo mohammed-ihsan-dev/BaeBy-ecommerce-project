@@ -37,8 +37,17 @@ export const adminLogin = asyncHandler(async (req, res) => {
     res.json({
         status: "success",
         message: "Successfully logged in",
-        data: { jwt_token: generateToken(admin._id) }
+        data: {
+            user: {
+                id: admin._id,
+                name: admin.name,
+                email: admin.email,
+                role: admin.role
+            },
+            jwt_token: generateToken(admin._id)
+        }
     });
+
 });
 
 // @desc    Get all users
@@ -75,7 +84,9 @@ export const getUserById = asyncHandler(async (req, res) => {
 // @route   PATCH /api/admin/users/:id
 // @access  Private/Admin
 export const updateUser = asyncHandler(async (req, res) => {
+    console.log("Updating user:", req.params.id, "Data:", req.body);
     const user = await User.findById(req.params.id);
+
 
     if (user) {
         if (req.body.name !== undefined) user.name = req.body.name;
@@ -246,7 +257,9 @@ export const getOrders = asyncHandler(async (req, res) => {
 // @route   PATCH /api/admin/orders/:id
 // @access  Private/Admin
 export const updateOrderStatus = asyncHandler(async (req, res) => {
+    console.log("Updating order status:", req.params.id, "Status:", req.body.status);
     const order = await Order.findById(req.params.id);
+
 
     if (!order) {
         res.status(404);

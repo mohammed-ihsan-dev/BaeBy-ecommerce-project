@@ -5,6 +5,8 @@ import { useCart } from "../../Context/CartContext";
 import { useWishlist } from "../../Context/WishlistContext";
 import { FaHeart } from "react-icons/fa";
 import { useAuth } from "../../Context/AuthContext";
+import { formatINR } from "../../utils/formatCurrency";
+
 
 function Clothes() {
   const { products, loading, error } = useProducts("clothes");
@@ -23,13 +25,14 @@ function Clothes() {
     let updatedProducts = [...products];
 
     // 1️ Filter
-    if (filterType === "under20") {
-      updatedProducts = updatedProducts.filter((p) => p.price < 20);
-    } else if (filterType === "20to40") {
-      updatedProducts = updatedProducts.filter((p) => p.price >= 20 && p.price <= 40);
-    } else if (filterType === "above40") {
-      updatedProducts = updatedProducts.filter((p) => p.price > 40);
+    if (filterType === "under1800") {
+      updatedProducts = updatedProducts.filter((p) => p.price < 1800);
+    } else if (filterType === "1800to3600") {
+      updatedProducts = updatedProducts.filter((p) => p.price >= 1800 && p.price <= 3600);
+    } else if (filterType === "above3600") {
+      updatedProducts = updatedProducts.filter((p) => p.price > 3600);
     }
+
 
     // 2️ Sort
     if (sortType === "lowToHigh") {
@@ -88,7 +91,8 @@ function Clothes() {
                   <p className="text-sm text-gray-500 mb-2 line-clamp-2">
                     {product.description}
                   </p>
-                  <p className="text-pink-600 font-bold text-lg">${product.price}</p>
+                  <p className="text-pink-600 font-bold text-lg">{formatINR(product.price)}</p>
+
 
                   {/*  Buttons */}
                   <div className="flex justify-center gap-3 mt-3">

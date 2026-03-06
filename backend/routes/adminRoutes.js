@@ -20,8 +20,11 @@ import validateRequest from "../middlewares/validationMiddleware.js";
 import {
     adminLoginSchema,
     createProductSchema,
-    updateProductSchema
+    updateProductSchema,
+    updateUserSchema,
+    updateOrderSchema
 } from "../validation/adminValidation.js";
+
 
 const router = express.Router();
 
@@ -37,8 +40,9 @@ router.route("/users")
 
 router.route("/users/:id")
     .get(getUserById)
-    .patch(updateUser)
+    .patch(validateRequest(updateUserSchema), updateUser)
     .delete(deleteUser);
+
 
 // Products management
 router.route("/products")
@@ -55,7 +59,8 @@ router.route("/orders")
     .get(getOrders);
 
 router.route("/orders/:id")
-    .patch(updateOrderStatus);
+    .patch(validateRequest(updateOrderSchema), updateOrderStatus);
+
 
 // Dashboard stats
 router.route("/stats")

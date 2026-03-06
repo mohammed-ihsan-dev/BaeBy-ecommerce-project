@@ -1,6 +1,8 @@
 import React from "react";
 import { useCart } from "../../Context/CartContext";
 import { useNavigate } from "react-router-dom";
+import { formatINR } from "../../utils/formatCurrency";
+
 
 function Cart() {
   const { cart, removeFromCart, clearCart, updateQuantity } = useCart();
@@ -76,7 +78,8 @@ function Cart() {
               />
               <div>
                 <h3 className="font-semibold text-gray-800">{item.name || item.title}</h3>
-                <p className="text-gray-600">${item.price}</p>
+                <p className="text-gray-600">{formatINR(item.price)}</p>
+
               </div>
             </div>
 
@@ -114,8 +117,9 @@ function Cart() {
           <p className="text-gray-800">
             Total:{" "}
             <span className="text-pink-600 font-bold">
-              ${total.toFixed(2)}
+              {formatINR(total)}
             </span>
+
           </p>
 
 

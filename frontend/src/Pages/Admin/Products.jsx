@@ -206,9 +206,10 @@ function ProductForm({ product, setProduct, onSave, onCancel, submitLabel }) {
                     <input name="category" value={product?.category || ""} onChange={handleChange} className="w-full bg-white/[0.02] border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-purple-500/50 text-sm" />
                 </div>
                 <div>
-                    <label className="block text-xs font-semibold text-gray-400 mb-1 uppercase tracking-wider">Price USD *</label>
+                    <label className="block text-xs font-semibold text-gray-400 mb-1 uppercase tracking-wider">Price INR *</label>
                     <input type="number" name="price" value={product?.price || ""} onChange={handleChange} className="w-full bg-white/[0.02] border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-purple-500/50 text-sm" />
                 </div>
+
             </div>
             <div className="relative">
                 <label className="block text-xs font-semibold text-gray-400 mb-1 uppercase tracking-wider">Image URL</label>

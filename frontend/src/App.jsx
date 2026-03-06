@@ -14,7 +14,8 @@ import ScrollToTop from "./Components/Scroll/ScrollToTop";
 import Cart from "./Pages/Cart/Cart";
 import WishlistPage from "./Pages/Wish/WishlistPage";
 import ProtectedRoute from "./Components/ProtectRouter/ProtectedRoute";
-import AdminRoute from "./Components/ProtectRouter/AdminRoute";
+import AdminProtectedRoute from "./Components/ProtectRouter/AdminProtectedRoute";
+
 import { Toaster } from "react-hot-toast";
 import GenzPicks from "./Pages/GenzPicks/Genz";
 import Footer from "./Components/Footer";
@@ -122,11 +123,12 @@ export default function App() {
               <Route
                 path="/admin"
                 element={
-                  <AdminRoute>
+                  <AdminProtectedRoute>
                     <AdminLayout />
-                  </AdminRoute>
+                  </AdminProtectedRoute>
                 }
               >
+
                 <Route index element={<Dashboard />} />
                 <Route path="products" element={<AdminProducts />} />
                 <Route path="orders" element={<AdminOrders />} />
