@@ -30,7 +30,7 @@ export default function TopNavbar({ isOpen, setIsOpen }) {
     if (!intervalRef.current) {
       intervalRef.current = setInterval(() => {
         fetchUnreadCount();
-      }, 30000); // 30 seconds
+      }, 600000); // 30 seconds
     }
 
     return () => {

@@ -19,7 +19,7 @@ export const getOrders = asyncHandler(async (req, res) => {
     if (search) {
         const searchRegex = { $regex: search, $options: "i" };
 
-        // Find users matching search to support searching by user fields
+        
         const users = await User.find({
             $or: [
                 { name: searchRegex },
@@ -34,7 +34,7 @@ export const getOrders = asyncHandler(async (req, res) => {
             { user: { $in: userIds } }
         ];
 
-        // Also check if search is a valid ObjectId for _id search
+        
         if (mongoose.isValidObjectId(search)) {
             query.$or.push({ _id: search });
         }

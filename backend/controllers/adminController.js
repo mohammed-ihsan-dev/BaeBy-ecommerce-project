@@ -11,6 +11,7 @@ const generateToken = (id) => {
     });
 };
 
+
 // @desc    Admin Login
 // @route   POST /api/admin/login
 // @access  Public
