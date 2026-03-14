@@ -130,6 +130,11 @@ export default function Orders() {
                                     <div>
                                         <p className="text-sm text-gray-200 font-bold">{order.user?.name || "Guest"}</p>
                                         {order.user?.email && <p className="text-xs text-gray-500">{order.user.email}</p>}
+                                        {order.shippingAddress && (
+                                            <p className="text-[10px] text-gray-400 mt-1">
+                                                {order.shippingAddress.city || "N/A"}, {order.shippingAddress.postalCode || "N/A"}
+                                            </p>
+                                        )}
                                     </div>
                                 </div>
                             </td>

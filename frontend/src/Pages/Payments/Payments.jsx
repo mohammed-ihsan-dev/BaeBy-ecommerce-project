@@ -17,6 +17,8 @@ function Payment() {
   const [form, setForm] = useState({
     name: "",
     address: "",
+    city: "",
+    postalCode: "",
     phone: "",
     upiId: "",
     cardNumber: "",
@@ -136,8 +138,8 @@ function Payment() {
 
       const shippingData = {
         address: form.address,
-        city: "Default City",
-        postalCode: "000000",
+        city: form.city || "Default City",
+        postalCode: form.postalCode || "000000",
         country: "India",
       };
 
@@ -370,6 +372,26 @@ function Payment() {
             required
             className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-pink-500"
           />
+          <div className="grid grid-cols-2 gap-4">
+            <input
+              type="text"
+              name="city"
+              placeholder="City"
+              value={form.city}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-pink-500"
+            />
+            <input
+              type="text"
+              name="postalCode"
+              placeholder="Postal Code"
+              value={form.postalCode}
+              onChange={handleChange}
+              required
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:border-pink-500"
+            />
+          </div>
           <input
             type="tel"
             name="phone"
