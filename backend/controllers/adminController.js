@@ -55,11 +55,32 @@ export const adminLogin = asyncHandler(async (req, res) => {
 // @route   GET /api/admin/users
 // @access  Private/Admin
 export const getUsers = asyncHandler(async (req, res) => {
-    const users = await User.find({}).select("-password").sort({ createdAt: -1 });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || "";
+
+    const query = {};
+    if (search) {
+        query.$or = [
+            { name: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } }
+        ];
+    }
+
+    const totalUsers = await User.countDocuments(query);
+    const totalPages = Math.ceil(totalUsers / limit);
+
+    const users = await User.find(query)
+        .select("-password")
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit);
 
     res.json({
         status: "success",
-        message: "Users retrieved successfully",
+        page,
+        totalPages,
+        totalUsers,
         data: users
     });
 });
@@ -138,11 +159,32 @@ export const deleteUser = asyncHandler(async (req, res) => {
 // @route   GET /api/admin/products
 // @access  Private/Admin
 export const getProducts = asyncHandler(async (req, res) => {
-    const products = await Product.find({}).sort({ createdAt: -1 });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || "";
+
+    const query = {};
+    if (search) {
+        query.$or = [
+            { title: { $regex: search, $options: "i" } },
+            { category: { $regex: search, $options: "i" } },
+            { description: { $regex: search, $options: "i" } }
+        ];
+    }
+
+    const totalProducts = await Product.countDocuments(query);
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    const products = await Product.find(query)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit);
 
     res.json({
         status: "success",
-        message: "Products retrieved successfully",
+        page,
+        totalPages,
+        totalProducts,
         data: products
     });
 });

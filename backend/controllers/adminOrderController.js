@@ -7,7 +7,10 @@ import mongoose from "mongoose";
 // @route   GET /api/admin/orders
 // @access  Private/Admin
 export const getOrders = asyncHandler(async (req, res) => {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
     const { status, search } = req.query;
+
     let query = {};
 
     // Filter by status
@@ -19,13 +22,13 @@ export const getOrders = asyncHandler(async (req, res) => {
     if (search) {
         const searchRegex = { $regex: search, $options: "i" };
 
-        
         const users = await User.find({
             $or: [
                 { name: searchRegex },
                 { email: searchRegex }
             ]
         }).select("_id");
+
         const userIds = users.map(u => u._id);
 
         query.$or = [
@@ -34,19 +37,25 @@ export const getOrders = asyncHandler(async (req, res) => {
             { user: { $in: userIds } }
         ];
 
-        
         if (mongoose.isValidObjectId(search)) {
             query.$or.push({ _id: search });
         }
     }
 
+    const totalOrders = await Order.countDocuments(query);
+    const totalPages = Math.ceil(totalOrders / limit);
+
     const orders = await Order.find(query)
         .populate("user", "name email")
-        .sort({ createdAt: -1 });
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit);
 
     res.json({
         status: "success",
-        count: orders.length,
+        page,
+        totalPages,
+        totalOrders,
         data: orders
     });
 });

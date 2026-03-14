@@ -4,8 +4,8 @@ import toast from "react-hot-toast";
 import { getUsers, deleteUser, updateUser } from "../../api/adminApi";
 import DataTable from "../../Components/admin/DataTable";
 import Badge from "../../Components/admin/Badge";
-import Modal from "../../Components/admin/Modal";
-import StatCard from "../../Components/admin/StatCard";
+import Modal from "../../components/admin/Modal";
+import StatCard from "../../components/admin/StatCard";
 
 export default function Users() {
     const [users, setUsers] = useState([]);
@@ -17,13 +17,21 @@ export default function Users() {
     const [editForm, setEditForm] = useState({ name: "", email: "", role: "", status: "" });
     const [deleteUserModal, setDeleteUserModal] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalUsers, setTotalUsers] = useState(0);
     const itemsPerPage = 8;
 
     const fetchUsers = async () => {
         setLoading(true);
         try {
-            const res = await getUsers();
+            const res = await getUsers({
+                page: currentPage,
+                limit: itemsPerPage,
+                search: searchQuery
+            });
             setUsers(res.data?.data || []);
+            setTotalPages(res.data?.totalPages || 1);
+            setTotalUsers(res.data?.totalUsers || 0);
         } catch (err) {
             toast.error(err.response?.data?.message || "Failed to fetch users");
         } finally {
@@ -33,20 +41,7 @@ export default function Users() {
 
     useEffect(() => {
         fetchUsers();
-    }, []);
-
-    // 1. FILTERING (Frontend Driven)
-    const filteredUsers = users.filter((u) => {
-        const matchesSearch = u.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            u.email?.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesRole = roleFilter === "all" || u.role === roleFilter;
-        const matchesStatus = statusFilter === "all" || (u.status || "active") === statusFilter;
-        return matchesSearch && matchesRole && matchesStatus;
-    });
-
-    // 2. PAGINATION (Frontend Driven)
-    const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-    const currentUsers = filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    }, [currentPage, searchQuery]);
 
     const handlePageChange = (p) => {
         if (p >= 1 && p <= totalPages) setCurrentPage(p);
@@ -91,9 +86,9 @@ export default function Users() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <StatCard title="Total Users" value={users.length} icon={UsersIcon} color="blue" />
-                <StatCard title="Active Results" value={filteredUsers.length} icon={UserCheck} color="emerald" />
-                <StatCard title="Filters Active" value={roleFilter !== 'all' || statusFilter !== 'all' ? "Yes" : "No"} icon={Filter} color="purple" />
+                <StatCard title="Total Users" value={totalUsers} icon={UsersIcon} color="blue" />
+                <StatCard title="Users on Page" value={users.length} icon={UserCheck} color="emerald" />
+                <StatCard title="Search Pattern" value={searchQuery || "None"} icon={Filter} color="purple" />
             </div>
 
             <div className="flex flex-col lg:flex-row gap-4 bg-[#111111]/80 backdrop-blur-3xl p-4 rounded-3xl border border-white/[0.05] shadow-xl">
@@ -106,32 +101,6 @@ export default function Users() {
                         className="w-full bg-white/[0.02] border border-white/[0.05] pl-12 pr-4 py-3 rounded-2xl text-gray-200 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all text-sm placeholder:text-gray-600"
                     />
                 </div>
-                <div className="flex flex-col sm:flex-row gap-4">
-                    <div className="relative md:w-48">
-                        <Filter className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
-                        <select
-                            value={roleFilter}
-                            onChange={(e) => { setRoleFilter(e.target.value); setCurrentPage(1); }}
-                            className="w-full bg-white/[0.02] border border-white/[0.05] pl-12 pr-4 py-3 rounded-2xl text-gray-200 focus:outline-none focus:border-purple-500/50 transition-all text-sm appearance-none"
-                        >
-                            <option value="all" className="bg-[#111111]">All Roles</option>
-                            <option value="admin" className="bg-[#111111]">Admins</option>
-                            <option value="user" className="bg-[#111111]">Users</option>
-                        </select>
-                    </div>
-                    <div className="relative md:w-48">
-                        <UserCheck className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-5 h-5" />
-                        <select
-                            value={statusFilter}
-                            onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
-                            className="w-full bg-white/[0.02] border border-white/[0.05] pl-12 pr-4 py-3 rounded-2xl text-gray-200 focus:outline-none focus:border-purple-500/50 transition-all text-sm appearance-none"
-                        >
-                            <option value="all" className="bg-[#111111]">All Status</option>
-                            <option value="active" className="bg-[#111111]">Active</option>
-                            <option value="inactive" className="bg-[#111111]">Inactive</option>
-                        </select>
-                    </div>
-                </div>
             </div>
 
             <DataTable
@@ -142,7 +111,7 @@ export default function Users() {
                     { label: "Role" }, { label: "Status" }, { label: "Actions", align: "right" }
                 ]}
             >
-                {currentUsers.map(user => {
+                {users.map(user => {
                     const uid = user.id || user._id;
                     return (
                         <tr key={uid} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
@@ -181,7 +150,7 @@ export default function Users() {
             {totalPages > 1 && (
                 <div className="flex items-center justify-between p-4 bg-[#111111]/50 rounded-2xl border border-white/5">
                     <div className="text-xs font-bold text-gray-500 uppercase tracking-widest hidden sm:block">
-                        Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredUsers.length)} of {filteredUsers.length} records
+                        Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, totalUsers)} of {totalUsers} records
                     </div>
                     <div className="flex items-center gap-1 mx-auto sm:mx-0">
                         <button

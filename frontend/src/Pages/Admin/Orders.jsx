@@ -15,17 +15,23 @@ export default function Orders() {
     const [searchQuery, setSearchQuery] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalOrders, setTotalOrders] = useState(0);
     const itemsPerPage = 8;
 
     const fetchOrders = async () => {
         setLoading(true);
         try {
             const params = {
+                page: currentPage,
+                limit: itemsPerPage,
                 status: statusFilter,
                 search: searchQuery
             };
             const res = await getOrders(params);
             setOrders(res.data?.data || []);
+            setTotalPages(res.data?.totalPages || 1);
+            setTotalOrders(res.data?.totalOrders || 0);
         } catch (error) {
             console.error("Orders fetch error:", error);
             toast.error("Failed to load orders");
@@ -41,11 +47,7 @@ export default function Orders() {
         }, 500); // 500ms debounce
 
         return () => clearTimeout(timeoutId);
-    }, [searchQuery, statusFilter]);
-
-    // 1. DATA (Backend Driven)
-    const currentOrders = orders.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-    const totalPages = Math.ceil(orders.length / itemsPerPage);
+    }, [searchQuery, statusFilter, currentPage]);
 
     const handlePageChange = (p) => {
         if (p >= 1 && p <= totalPages) setCurrentPage(p);
@@ -84,7 +86,7 @@ export default function Orders() {
                     </div>
                     <div className="flex items-center gap-3 bg-[#111111]/80 px-5 py-2.5 border border-white/[0.05] rounded-2xl shadow-xl">
                         <span className="text-xs text-gray-400 font-bold uppercase tracking-widest hidden lg:block">Volume</span>
-                        <span className="text-lg text-purple-400 font-black">{orders.length}</span>
+                        <span className="text-lg text-purple-400 font-black">{totalOrders}</span>
                     </div>
                 </div>
             </div>
@@ -113,7 +115,7 @@ export default function Orders() {
                     { label: "Status", align: "center" }, { label: "Date", align: "right" }, { label: "Actions", align: "right" }
                 ]}
             >
-                {currentOrders.map(order => {
+                {orders.map(order => {
                     const oid = order.id || order._id;
                     return (
                         <tr key={oid} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors group">
@@ -160,7 +162,7 @@ export default function Orders() {
             {totalPages > 1 && (
                 <div className="flex items-center justify-between p-4 bg-[#111111]/50 rounded-2xl border border-white/5 shadow-lg">
                     <div className="text-xs font-bold text-gray-500 uppercase tracking-widest hidden sm:block">
-                        Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, orders.length)} of {orders.length} records
+                        Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, totalOrders)} of {totalOrders} records
                     </div>
                     <div className="flex items-center gap-1 mx-auto sm:mx-0">
                         <button

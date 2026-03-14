@@ -17,13 +17,21 @@ export default function Products() {
     const [deleting, setDeleting] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    const [totalProducts, setTotalProducts] = useState(0);
     const itemsPerPage = 8;
 
     const fetchProducts = async () => {
         setLoading(true);
         try {
-            const res = await getProducts();
+            const res = await getProducts({
+                page: currentPage,
+                limit: itemsPerPage,
+                search: searchQuery
+            });
             setProducts(res.data?.data || []);
+            setTotalPages(res.data?.totalPages || 1);
+            setTotalProducts(res.data?.totalProducts || 0);
         } catch (err) {
             toast.error(err.response?.data?.message || "Failed to fetch products");
         } finally {
@@ -33,17 +41,7 @@ export default function Products() {
 
     useEffect(() => {
         fetchProducts();
-    }, []);
-
-    // 1. FILTERING (Frontend Driven)
-    const filteredProducts = products.filter((p) =>
-        p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.category?.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-    // 2. PAGINATION (Frontend Driven)
-    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-    const currentProducts = filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+    }, [currentPage, searchQuery]);
 
     const handlePageChange = (p) => {
         if (p >= 1 && p <= totalPages) setCurrentPage(p);
@@ -125,7 +123,7 @@ export default function Products() {
                 emptyMessage={searchQuery ? "No products match your search." : "Your catalog is empty."}
                 headers={[{ label: "Product" }, { label: "Category" }, { label: "Price", align: "right" }, { label: "Actions", align: "right" }]}
             >
-                {currentProducts.map((product) => {
+                {products.map((product) => {
                     const pid = product.id || product._id;
                     return (
                         <tr key={pid} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors group">
@@ -169,7 +167,7 @@ export default function Products() {
             {totalPages > 1 && (
                 <div className="flex items-center justify-between p-4 bg-[#111111]/50 rounded-2xl border border-white/5 shadow-lg">
                     <div className="text-xs font-bold text-gray-500 uppercase tracking-widest hidden sm:block">
-                        Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredProducts.length)} of {filteredProducts.length} records
+                        Showing {(currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, totalProducts)} of {totalProducts} records
                     </div>
                     <div className="flex items-center gap-1 mx-auto sm:mx-0">
                         <button
