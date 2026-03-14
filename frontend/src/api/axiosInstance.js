@@ -11,8 +11,8 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    // Admin dashboard MUST use adminToken as requested
-    const token = localStorage.getItem("adminToken");
+    // Use unified session token
+    const token = localStorage.getItem("token");
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -30,10 +30,11 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (error.response) {
       if (error.response.status === 401) {
-        console.warn("Unauthorized request – admin token invalid or expired");
+        console.warn("Unauthorized request – session token invalid or expired");
 
-        // Clear only admin token if needed, or redirect
-        localStorage.removeItem("adminToken");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        localStorage.removeItem("userInfo");
 
         // Redirect to login
         window.location.href = "/login";

@@ -1,14 +1,5 @@
 import api from "./axiosInstance";
 
-/* ================= AUTH ================= */
-
-/**
- * Admin Login
- * @param {Object} data - { email, password }
- */
-export const adminLogin = async (data) => {
-  return await api.post("/api/admin/login", data);
-};
 
 /* ================= DASHBOARD ================= */
 

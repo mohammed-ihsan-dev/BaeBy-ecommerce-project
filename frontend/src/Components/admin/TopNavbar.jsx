@@ -3,6 +3,7 @@ import { Menu, Bell, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useAuth } from "../../Context/AuthContext";
 import GlobalSearch from "./GlobalSearch";
 import { getUnreadCount } from "../../api/adminApi";
 
@@ -12,6 +13,7 @@ export default function TopNavbar({ isOpen, setIsOpen }) {
 
   const intervalRef = useRef(null); // prevents multiple intervals
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const fetchUnreadCount = async () => {
     try {
@@ -41,10 +43,9 @@ export default function TopNavbar({ isOpen, setIsOpen }) {
     };
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem("adminToken");
+  const handleLogout = async () => {
+    await logout();
     toast.success("Securely Logged Out");
-    navigate("/admin/login");
   };
 
   return (
