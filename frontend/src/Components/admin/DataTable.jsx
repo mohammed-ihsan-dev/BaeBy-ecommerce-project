@@ -38,7 +38,7 @@ export default function DataTable({ headers, children, emptyMessage, isLoading }
                         animate={{ opacity: 1 }}
                         transition={{ staggerChildren: 0.1 }}
                     >
-                        {children}
+                        {children} 
                     </motion.tbody>
                 </table>
             </div>
