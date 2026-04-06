@@ -1,10 +1,10 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../Context/AuthContext";
+// import { useAuth } from "../Context/AuthContext"; // Unused import removed
 
 function Home() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  // const { user, logout } = useAuth(); // Unused variables removed
 
   return (
     <div className="w-full h-full overflow-x-hidden scroll-smooth">

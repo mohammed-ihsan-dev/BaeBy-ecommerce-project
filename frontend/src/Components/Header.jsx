@@ -1,15 +1,15 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { FaShoppingCart, FaUser, FaHeart, FaSearch } from "react-icons/fa";
 import { BiSolidLogInCircle } from "react-icons/bi";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import AuthContext from "../Context/AuthContext";
+import { useAuth } from "../Context/AuthContext";
 import { useCart } from "../Context/CartContext";
 import { useWishlist } from "../Context/WishlistContext";
 
 function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { user, logout } = useContext(AuthContext);
+  const { user, logout } = useAuth();
   const { cart, clearCart } = useCart();
   const { wishlist, clearWishlist } = useWishlist();
   const navigate = useNavigate();
@@ -32,8 +32,8 @@ function Header() {
   return (
     <header
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${scrolled
-          ? "bg-white/80 backdrop-blur-lg shadow-lg py-2"
-          : "bg-transparent py-4 text-gray-800"
+        ? "bg-white/80 backdrop-blur-lg shadow-lg py-2"
+        : "bg-transparent py-4 text-gray-800"
         }`}
     >
       <nav className="max-w-7xl mx-auto px-6 lg:px-12 flex justify-between items-center">

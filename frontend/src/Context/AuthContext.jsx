@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState } from "react";
 import api from "../utils/api";
 import { useCart } from "./CartContext";
 import { useWishlist } from "./WishlistContext";
@@ -96,4 +96,3 @@ export const AuthProvider = ({ children }) => {
 };
 
 export const useAuth = () => useContext(AuthContext);
-export default AuthContext;
