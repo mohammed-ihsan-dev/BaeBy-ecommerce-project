@@ -10,7 +10,8 @@ function GenzPicks() {
 
 
   useEffect(() => {
-    fetch("http://localhost:5001/api/products/genz")
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5001";
+    fetch(`${apiUrl}/api/products/genz`)
       .then((res) => res.json())
       .then((data) => {
         // Handle both older array returns and new standardized {data: []} response structs

@@ -191,7 +191,7 @@ function Payment() {
           });
 
           const options = {
-            key: "rzp_test_SJr8psddTz1yjJ",
+            key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_SJr8psddTz1yjJ",
             amount: data.order.amount,
             currency: "INR",
             name: "BaeBy Store",

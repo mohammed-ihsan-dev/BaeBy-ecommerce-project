@@ -28,7 +28,8 @@ const useProducts = (config = {}) => {
       if (maxPrice !== undefined) params.append("maxPrice", maxPrice);
       if (sort) params.append("sort", sort);
 
-      const url = `http://localhost:5001/api/products?${params.toString()}`;
+      const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5001";
+      const url = `${apiUrl}/api/products?${params.toString()}`;
       const response = await axios.get(url, { signal });
 
       if (response.data.success) {

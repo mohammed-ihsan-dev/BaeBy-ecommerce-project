@@ -23,7 +23,8 @@ function ProductDetails() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`http://localhost:5001/api/products/${id}`);
+        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5001";
+        const res = await axios.get(`${apiUrl}/api/products/${id}`);
         // Handle both old direct object returning and the new `{ success: true, data: {...} }` format
         const productData = res.data.data || res.data;
         setProduct(productData);
