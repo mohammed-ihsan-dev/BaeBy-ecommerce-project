@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from "react";
 import api from "../utils/api";
+import toast from "react-hot-toast";
 
 const CartContext = createContext();
 
@@ -41,14 +42,14 @@ export function CartProvider({ children }) {
     // Optimistic UI Update first
     const existing = cart.find((p) => p.id === item.id);
     if (existing) {
-      showToast(`${item.name || item.title} is already in your cart`);
+      toast.error(`${item.name || item.title} is already in your cart`);
       return;
     }
 
     // Add to local state immediately
     const newItem = { ...item, quantity: 1 };
     setCart((prev) => [...prev, newItem]);
-    showToast(`${item.name || item.title} added to cart`);
+    toast.success(`${item.name || item.title} added to cart!`);
 
     if (token) {
       try {
@@ -62,7 +63,7 @@ export function CartProvider({ children }) {
         }
       } catch (err) {
         console.error("Add to cart error:", err);
-        showToast("Failed to sync with server");
+        toast.error("Failed to sync cart with server");
         // Revert local state if server fails
         setCart((prev) => prev.filter((p) => p.id !== item.id));
       }
@@ -75,7 +76,7 @@ export function CartProvider({ children }) {
 
     // Optimistic UI Update
     setCart((prevCart) => prevCart.filter((item) => item.id !== id));
-    showToast(`${removedItem?.name || removedItem?.title || "Item"} removed`);
+    toast.success(`${removedItem?.name || removedItem?.title || "Item"} removed from cart`);
 
     if (token) {
       try {
@@ -89,7 +90,7 @@ export function CartProvider({ children }) {
 
   const clearCart = useCallback(() => {
     setCart([]);
-    showToast("Cart cleared");
+    toast.success("Cart cleared");
   }, []);
 
   const updateQuantity = useCallback(async (id, action) => {
@@ -116,8 +117,8 @@ export function CartProvider({ children }) {
       })
     );
 
-    if (action === "increase") showToast("Quantity increased");
-    else showToast("Quantity decreased");
+    if (action === "increase") toast.success("Quantity increased");
+    else toast.success("Quantity decreased");
 
     if (token) {
       try {
@@ -131,23 +132,6 @@ export function CartProvider({ children }) {
       }
     }
   }, [cart]);
-
-  //  Custom Toast 
-  const showToast = (message) => {
-    const toast = document.createElement("div");
-    toast.textContent = message;
-    toast.className =
-      "fixed bottom-8 right-8 bg-pink-600 text-white px-5 py-3 rounded-lg shadow-lg z-50 opacity-0 transition-opacity duration-300";
-    document.body.appendChild(toast);
-
-    // Fade in
-    setTimeout(() => (toast.style.opacity = "1"), 50);
-    // Fade out
-    setTimeout(() => {
-      toast.style.opacity = "0";
-      setTimeout(() => toast.remove(), 300);
-    }, 2000);
-  };
 
   const value = useMemo(() => ({
     cart,

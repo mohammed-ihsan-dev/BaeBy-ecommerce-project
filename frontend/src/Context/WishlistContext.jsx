@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import api from "../utils/api";
+import toast from "react-hot-toast";
 
 const WishlistContext = createContext();
 
@@ -41,6 +42,7 @@ export const WishlistProvider = ({ children }) => {
     setWishlist((prev) => {
       const exists = prev.find((item) => (item.id || item._id) === (product.id || product._id));
       if (exists) return prev;
+      toast.success(`${product.name || product.title} added to wishlist!`);
       return [...prev, product];
     });
 
@@ -57,7 +59,13 @@ export const WishlistProvider = ({ children }) => {
   //  Remove
   const removeFromWishlist = async (id) => {
     // Optimistic update
-    setWishlist((prev) => prev.filter((item) => (item.id || item._id) !== id));
+    setWishlist((prev) => {
+      const removedItem = prev.find((item) => (item.id || item._id) === id);
+      if (removedItem) {
+        toast.success(`${removedItem.name || removedItem.title} removed from wishlist`);
+      }
+      return prev.filter((item) => (item.id || item._id) !== id);
+    });
 
     const token = localStorage.getItem("token") || JSON.parse(localStorage.getItem("userInfo") || "{}")?.token;
     if (token) {
