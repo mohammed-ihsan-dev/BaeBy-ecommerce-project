@@ -22,11 +22,11 @@ import Return from "./Components/Footer/Return";
 import Payment from "./Pages/Payments/Payments";
 import OrderSuccess from "./Pages/Payments/OrderSuccess";
 import Orders from "./Pages/Orders/Order";
-import Users from "./Pages/admin/Users";
-import Dashboard from "./Pages/admin/Dashboard";
-import AdminProducts from "./Pages/admin/Products";
-import AdminOrders from "./Pages/admin/Orders";
-import AdminNotifications from "./Pages/admin/Notifications";
+import Users from "./Pages/Admin/Users";
+import Dashboard from "./Pages/Admin/Dashboard";
+import AdminProducts from "./Pages/Admin/Products";
+import AdminOrders from "./Pages/Admin/Orders";
+import AdminNotifications from "./Pages/Admin/Notifications";
 import AdminLayout from "./layouts/AdminLayout";
 import NotAuthorized from "./Components/Auth/NotAuthorized";
 
