@@ -4,8 +4,8 @@ import toast from "react-hot-toast";
 import { getUsers, deleteUser, updateUser } from "../../api/adminApi";
 import DataTable from "../../Components/admin/DataTable";
 import Badge from "../../Components/admin/Badge";
-import Modal from "../../components/admin/Modal";
-import StatCard from "../../components/admin/StatCard";
+import Modal from "../../Components/admin/Modal";
+import StatCard from "../../Components/admin/StatCard";
 
 export default function Users() {
     const [users, setUsers] = useState([]);

@@ -552,7 +552,7 @@
       "description": "50+50ml (2in1)",
       "price": 8.99,
       "category": "skincare",
-      "image": "/public/BabyLotion.jpg"
+      "image": "/BabyLotion.jpg"
     },
     {
       "id": "23",
@@ -576,7 +576,7 @@
       "description": "World Best for Babies",
       "price": 10.49,
       "category": "skincare",
-      "image": "/public/Sunscreen1.png"
+      "image": "/Sunscreen1.png"
     },
     {
       "id": "26",
@@ -608,7 +608,7 @@
       "description": "Natural Lotion",
       "price": 24.49,
       "category": "skincare",
-      "image": "/public/BabyLotion.jpg"
+      "image": "/BabyLotion.jpg"
     }
   ],
   "genz-picks": [

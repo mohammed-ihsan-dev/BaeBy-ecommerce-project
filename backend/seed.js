@@ -12,7 +12,7 @@ const seedData = async () => {
   try {
     // Read db.json
     const data = JSON.parse(
-      fs.readFileSync("../db.json", "utf-8")
+      fs.readFileSync("../frontend/db.json", "utf-8")
     );
 
     // Clear existing products
