@@ -16,7 +16,13 @@ import { notFound, errorHandler } from "./middlewares/errorMiddleware.js";
 import adminRoutes from "./routes/adminRoutes.js"
 
 dotenv.config();        // Load environment variables
-connectDB();            // Connect to MongoDB
+try {
+  connectDB();
+} catch (error) {
+  console.error("MongoDB Connection Failed ");
+  console.error(error);
+  process.exit(1);
+}
 
 const app = express();
 
@@ -24,10 +30,10 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    process.env.FRONTEND_URL,
-  ].filter(Boolean), // Allow local and production frontend
+    "https://baeby-ecommerce-store.vercel.app"
+  ],
+  credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-  credentials: true, // Allow cookies/headers
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
 app.use(express.json());
@@ -48,7 +54,7 @@ app.use("/api/admin", adminRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
