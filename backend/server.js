@@ -27,11 +27,14 @@ try {
 const app = express();
 
 // Middleware
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://baeby-ecommerce-store.vercel.app",
+  ...(process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(",") : []),
+].filter(Boolean);
+
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://baeby-ecommerce-store.vercel.app"
-  ],
+  origin: allowedOrigins,
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"]

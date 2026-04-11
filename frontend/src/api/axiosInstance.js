@@ -1,7 +1,10 @@
 import axios from "axios";
 
+import { API_BASE_URL } from "../config/constants";
+
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5001",
+  baseURL: API_BASE_URL,
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
@@ -11,11 +14,16 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    // Use unified session token
+    // Try to get token from 'token' key first, then 'userInfo'
     const token = localStorage.getItem("token");
+    const userInfo = localStorage.getItem("userInfo")
+      ? JSON.parse(localStorage.getItem("userInfo"))
+      : null;
 
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    const activeToken = token || userInfo?.token;
+
+    if (activeToken) {
+      config.headers.Authorization = `Bearer ${activeToken}`;
     }
 
     return config;

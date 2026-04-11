@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../../config/constants";
 
 
 function GenzPicks() {
@@ -10,8 +11,7 @@ function GenzPicks() {
 
 
   useEffect(() => {
-    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5001";
-    fetch(`${apiUrl}/api/products/genz`)
+    fetch(`${API_BASE_URL}/api/products/genz`)
       .then((res) => res.json())
       .then((data) => {
         // Handle both older array returns and new standardized {data: []} response structs

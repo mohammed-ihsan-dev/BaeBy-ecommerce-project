@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import axios from "axios";
+import { API_BASE_URL } from "../config/constants";
 
 const ProductsContext = createContext();
 
@@ -16,8 +17,7 @@ export const ProductsProvider = ({ children }) => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5001";
-        const res = await axios.get(`${apiUrl}/api/products?limit=1000`);
+        const res = await axios.get(`${API_BASE_URL}/api/products?limit=1000`);
 
         let allProducts = [];
         if (res.data && Array.isArray(res.data.data)) {
