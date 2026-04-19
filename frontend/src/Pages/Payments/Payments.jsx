@@ -146,7 +146,7 @@ function Payment() {
       if (method === "cod") {
         // ── COD flow — unchanged ─────────────────────────────────────────
         try {
-          const createdResponse = await api.post("/api/orders", {
+          const createdResponse = await api.post("/orders", {
             orderItems: orderItems,
             shippingAddress: shippingData,
             paymentMethod: "COD",
@@ -186,7 +186,7 @@ function Payment() {
           }
 
           // 1. Create Razorpay order on backend
-          const { data } = await api.post("/api/payment/create-order", {
+          const { data } = await api.post("/payment/create-order", {
             amount: totalAmount,
           });
 
@@ -211,7 +211,7 @@ function Payment() {
                 };
 
                 const res = await api.post(
-                  "/api/payment/verify-payment",
+                  "/payment/verify-payment",
                   verifyData
                 );
 

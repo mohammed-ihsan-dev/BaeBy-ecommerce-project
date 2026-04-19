@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
   // Register
   const register = async (userData) => {
     try {
-      const { data } = await api.post("/api/auth/register", userData);
+      const { data } = await api.post("/auth/register", userData);
       return { success: true, message: data.message };
     } catch (err) {
       console.error(err);
@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       // Use the global api instance (though interceptor won't have token yet, that's fine for login)
-      const { data } = await api.post("/api/auth/login", { email, password });
+      const { data } = await api.post("/auth/login", { email, password });
 
       const { token, user: userData } = data;
 
@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }) => {
   // Logout
   const logout = async () => {
     try {
-      await api.post("/api/auth/logout");
+      await api.post("/auth/logout");
     } catch (err) {
       console.error("Logout failed at backend:", err);
     }

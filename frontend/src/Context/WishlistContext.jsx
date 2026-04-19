@@ -16,7 +16,7 @@ export const WishlistProvider = ({ children }) => {
     if (!token) return;
 
     try {
-      const { data } = await api.get("/api/wishlist");
+      const { data } = await api.get("/wishlist");
       if (data && data.products) {
         setWishlist(data.products);
         localStorage.setItem("wishlist", JSON.stringify(data.products));
@@ -49,7 +49,7 @@ export const WishlistProvider = ({ children }) => {
     const token = localStorage.getItem("token") || JSON.parse(localStorage.getItem("userInfo") || "{}")?.token;
     if (token) {
       try {
-        await api.post("/api/wishlist", { productId: product.id || product._id });
+        await api.post("/wishlist", { productId: product.id || product._id });
       } catch (error) {
         console.error("Error adding to wishlist:", error);
       }
@@ -70,7 +70,7 @@ export const WishlistProvider = ({ children }) => {
     const token = localStorage.getItem("token") || JSON.parse(localStorage.getItem("userInfo") || "{}")?.token;
     if (token) {
       try {
-        await api.delete(`/api/wishlist/${id}`);
+        await api.delete(`/wishlist/${id}`);
       } catch (error) {
         console.error("Error removing from wishlist:", error);
       }

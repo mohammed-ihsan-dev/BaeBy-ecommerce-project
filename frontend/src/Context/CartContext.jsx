@@ -16,7 +16,7 @@ export function CartProvider({ children }) {
       const token = localStorage.getItem("token") || localStorage.getItem("userInfo");
       if (token) {
         try {
-          const { data } = await api.get("/api/cart");
+          const { data } = await api.get("/cart");
           const formattedCart = data.map((item) => ({
             ...item.product,
             id: item.product.id,
@@ -53,7 +53,7 @@ export function CartProvider({ children }) {
 
     if (token) {
       try {
-        const res = await api.post("/api/cart", {
+        const res = await api.post("/cart", {
           productId: item.id,
         });
 
@@ -80,7 +80,7 @@ export function CartProvider({ children }) {
 
     if (token) {
       try {
-        await api.delete(`/api/cart/${id}`);
+        await api.delete(`/cart/${id}`);
       } catch (err) {
         console.error("Remove from cart error:", err);
         // Optionally revert state here if strict sync is needed
@@ -122,7 +122,7 @@ export function CartProvider({ children }) {
 
     if (token) {
       try {
-        await api.put("/api/cart", {
+        await api.put("/cart", {
           productId: id,
           quantity: newQuantity, // Send the calculated value
         });

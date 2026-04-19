@@ -18,7 +18,7 @@ function Orders() {
 
     const fetchOrders = async () => {
       try {
-        const { data } = await api.get("/api/orders/myorders");
+        const { data } = await api.get("/orders/myorders");
 
         // ensure array
         if (Array.isArray(data)) {
