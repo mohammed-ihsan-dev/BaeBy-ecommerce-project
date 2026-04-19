@@ -2,8 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
-import { API_BASE_URL } from "../../config/constants";
+import api from "../../utils/api";
 import { useCart } from "../../Context/CartContext";
 import { useAuth } from "../../Context/AuthContext";
 import { formatINR } from "../../utils/formatCurrency";
@@ -24,7 +23,7 @@ function ProductDetails() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`${API_BASE_URL}/api/products/${id}`);
+        const res = await api.get(`/products/${id}`);
         // Handle both old direct object returning and the new `{ success: true, data: {...} }` format
         const productData = res.data.data || res.data;
         setProduct(productData);

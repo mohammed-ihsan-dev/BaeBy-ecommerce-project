@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
+import api from "../utils/api";
 import axios from "axios";
-import { API_BASE_URL } from "../config/constants";
 
 const useProducts = (config = {}) => {
   // Support both object config and string (category) for backward compatibility
@@ -29,8 +29,7 @@ const useProducts = (config = {}) => {
       if (maxPrice !== undefined) params.append("maxPrice", maxPrice);
       if (sort) params.append("sort", sort);
 
-      const url = `${API_BASE_URL}/api/products?${params.toString()}`;
-      const response = await axios.get(url, { signal });
+      const response = await api.get(`/products?${params.toString()}`, { signal });
 
       if (response.data.success) {
         setData({
