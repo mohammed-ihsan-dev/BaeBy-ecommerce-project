@@ -50,8 +50,8 @@ export const login = async (req, res) => {
         // Set Refresh Token in httpOnly Cookie
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            secure: true, // REQUIRED for sameSite: "none"
+            sameSite: "none", // REQUIRED for cross-site (Vercel -> Render)
             maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         });
 

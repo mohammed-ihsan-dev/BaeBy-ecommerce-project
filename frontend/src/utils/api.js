@@ -3,9 +3,9 @@ import axios from "axios";
 import { API_BASE_URL } from "../config/constants";
 
 const api = axios.create({
-    baseURL: API_BASE_URL,
+    baseURL: API_BASE_URL.replace(/\/$/, ""),
     withCredentials: true,
-    timeout: 10000,
+    timeout: 35000, // 35s to handle Render cold starts
 });
 
 api.interceptors.request.use(
@@ -29,13 +29,18 @@ api.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
-        if (
-            (error.code === 'ECONNABORTED' || error.message === 'Network Error') &&
-            !originalRequest._retry
-        ) {
+        
+        // Retry on Timeout (cold start), Network Error, or Server Error (booting)
+        const shouldRetry = (
+            error.code === 'ECONNABORTED' || 
+            error.message === 'Network Error' || 
+            (error.response && error.response.status >= 500)
+        );
+
+        if (shouldRetry && !originalRequest._retry) {
             originalRequest._retry = true;
-            console.warn("🔄 Retrying request due to network error or timeout...");
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            console.warn("🔄 Backend is waking up... retrying in 4 seconds");
+            await new Promise(resolve => setTimeout(resolve, 4000));
             return api(originalRequest);
         }
         return Promise.reject(error);
