@@ -7,8 +7,8 @@ if (!import.meta.env.VITE_API_URL) {
 }
 
 const API = axios.create({
-    // Standardize URL: Remove trailing slash and add /api prefix
-    baseURL: (import.meta.env.VITE_API_URL || "").replace(/\/$/, "") + "/api",
+    // Standardize URL: Ensure it points to the /api endpoint of the backend
+    baseURL: (import.meta.env.VITE_API_URL || "http://localhost:5001").replace(/\/$/, "") + "/api",
     withCredentials: true,
     timeout: 30000,
 });

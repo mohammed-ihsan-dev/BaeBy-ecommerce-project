@@ -30,7 +30,7 @@ const app = express();
 // Security & Base Middlewares
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://baeby-ecommerce-store.vercel.app",
+  "https://bae-by-ecommerce-project-dcnu.vercel.app",
   ...(process.env.FRONTEND_URL ? process.env.FRONTEND_URL.split(",").map(url => url.trim().replace(/\/$/, "")) : []),
 ].filter(Boolean);
 

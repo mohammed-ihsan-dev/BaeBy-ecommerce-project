@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import { API_BASE_URL } from "../../config/constants";
+import api from "../../utils/api";
 
 
 function GenzPicks() {
@@ -11,11 +11,11 @@ function GenzPicks() {
 
 
   useEffect(() => {
-    fetch(`${API_BASE_URL}/api/products/genz`)
-      .then((res) => res.json())
-      .then((data) => {
+    api.get("/products/genz")
+      .then((response) => {
+        const data = response.data;
         // Handle both older array returns and new standardized {data: []} response structs
-        const picksData = data.data || data;
+        const picksData = data.data || data.products || data;
         setPicks(picksData);
       })
       .catch((err) => console.error("Error fetching GenZ Picks:", err));
